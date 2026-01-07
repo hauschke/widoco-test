@@ -25,23 +25,14 @@ jobs:
           if [ ! -f vivo.owl ]; then
             echo "ERROR: vivo.owl not found in repository root"
             exit 1
-          fi
 
       # ------------------------------
-      # Extract ontology IRI from RDF/XML
+      # Hardcode ontology IRI
       # ------------------------------
-      - name: Extract ontology IRI
+      - name: Set ontology IRI
         id: iri
         run: |
-          IRI=$(xmllint --xpath 'string(//*[local-name()="Ontology"]/@rdf:about)' vivo.owl 2>/dev/null || true)
-
-          if [ -z "$IRI" ]; then
-            echo "ERROR: Could not extract ontology IRI from vivo.owl"
-            exit 1
-          fi
-
-          echo "ontology_iri=$IRI" >> "$GITHUB_OUTPUT"
-          echo "Detected ontology IRI: $IRI"
+          echo "ontology_iri=http://vivoweb.org/ontology/core" >> "$GITHUB_OUTPUT"
 
       # ------------------------------
       # Determine documentation version
@@ -58,7 +49,7 @@ jobs:
           echo "Documentation version: $VERSION"
 
       # ------------------------------
-      # Create output folder in repo
+      # Create docs directory in repository
       # ------------------------------
       - name: Create docs directory
         run: |
@@ -109,7 +100,6 @@ jobs:
             echo "ERROR: WIDOCO produced no documentation"
             ls -R docs || true
             exit 1
-          fi
 
       # ------------------------------
       # Commit generated documentation
