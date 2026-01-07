@@ -1,4 +1,4 @@
-name: Create Ontology Documentation
+name: Generate Ontology Documentation (WIDOCO)
 
 on:
   workflow_dispatch:
@@ -18,14 +18,16 @@ jobs:
         run: mkdir -p widoco-docs
 
       - name: Run WIDOCO
-        uses: docker://ghcr.io/dgarijo/widoco:latest
-        with:
-          args: >
-            -ontFile /github/workspace/vivo.owl
-            -outFolder /github/workspace/widoco-docs
-            -lang en
-            -rewriteAll
-            -noPlaceholders
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            ghcr.io/dgarijo/widoco:latest \
+            widoco.sh \
+              -ontFile /workspace/vivo.owl \
+              -outFolder /workspace/widoco-docs \
+              -lang en \
+              -rewriteAll \
+              -noPlaceholders
 
       - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
