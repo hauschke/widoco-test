@@ -11,15 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ------------------------------
-      # Checkout repository
-      # ------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ------------------------------
-      # Validate ontology file exists
-      # ------------------------------
       - name: Validate vivo.owl exists
         run: |
           if [ ! -f vivo.owl ]; then
@@ -27,17 +21,11 @@ jobs:
             exit 1
           fi
 
-      # ------------------------------
-      # Hardcode ontology IRI
-      # ------------------------------
       - name: Set ontology IRI
         id: iri
         run: |
           echo "ontology_iri=http://vivoweb.org/ontology/core" >> "$GITHUB_OUTPUT"
 
-      # ------------------------------
-      # Determine documentation version
-      # ------------------------------
       - name: Determine documentation version
         id: version
         run: |
@@ -47,41 +35,20 @@ jobs:
             VERSION="dev"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Documentation version: $VERSION"
 
       # ------------------------------
-      # Create docs directory on host
+      # Ensure docs folder exists on host
       # ------------------------------
-      - name: Create docs directory on host
+      - name: Ensure docs folder exists on host
         run: |
+          mkdir -p docs
           mkdir -p "docs/${{ steps.version.outputs.version }}"
 
       # ------------------------------
-      # Cache WIDOCO Docker image
-      # ------------------------------
-      - name: Cache WIDOCO Docker image
-        uses: actions/cache@v4
-        with:
-          path: /tmp/widoco-image
-          key: widoco-docker-latest
-
-      - name: Load or pull WIDOCO Docker image
-        run: |
-          if [ -f /tmp/widoco-image/image.tar ]; then
-            docker load -i /tmp/widoco-image/image.tar
-          else
-            docker pull ghcr.io/dgarijo/widoco:latest
-            mkdir -p /tmp/widoco-image
-            docker save ghcr.io/dgarijo/widoco:latest -o /tmp/widoco-image/image.tar
-          fi
-
-      # ------------------------------
-      # Run WIDOCO
+      # Run WIDOCO inside Docker
       # ------------------------------
       - name: Run WIDOCO
         run: |
-          # Ensure output folder exists inside container
-          mkdir -p "docs/${{ steps.version.outputs.version }}"
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:latest \
@@ -96,9 +63,6 @@ jobs:
                 -noPlaceholders
             "
 
-      # ------------------------------
-      # Verify documentation output
-      # ------------------------------
       - name: Verify documentation output
         run: |
           TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
@@ -108,9 +72,6 @@ jobs:
             exit 1
           fi
 
-      # ------------------------------
-      # Commit generated documentation
-      # ------------------------------
       - name: Commit documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
