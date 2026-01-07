@@ -11,15 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ------------------------------
-      # Checkout repository
-      # ------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ------------------------------
-      # Validate ontology file exists
-      # ------------------------------
       - name: Validate vivo.owl exists
         run: |
           if [ ! -f vivo.owl ]; then
@@ -27,9 +21,6 @@ jobs:
             exit 1
           fi
 
-      # ------------------------------
-      # Determine documentation version
-      # ------------------------------
       - name: Determine documentation version
         id: version
         run: |
@@ -40,18 +31,16 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # ------------------------------
-      # Ensure docs folder exists on host
-      # ------------------------------
       - name: Ensure docs folder exists
         run: |
           mkdir -p docs
           mkdir -p "docs/${{ steps.version.outputs.version }}"
 
-      # ------------------------------
-      # Run WIDOCO using Docker and JAR directly
-      # ------------------------------
-      - name: Run WIDOCO
+      - name: Verify WIDOCO jar exists in Docker
+        run: |
+          docker run --rm ghcr.io/dgarijo/widoco:latest ls /Widoco
+
+      - name: Run WIDOCO with debug
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
@@ -63,11 +52,14 @@ jobs:
               -lang en \
               -rewriteAll \
               -noPlaceholders \
-              -ontologyName "Minimal Ontology"
+              -ontologyName "Minimal Ontology" \
+              -debug true
 
-      # ------------------------------
-      # Verify documentation output
-      # ------------------------------
+      - name: List output folder after WIDOCO
+        run: |
+          echo "Listing docs/${{ steps.version.outputs.version }}:"
+          ls -R "docs/${{ steps.version.outputs.version }}" || echo "Folder is empty"
+
       - name: Verify documentation output
         run: |
           TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
@@ -77,9 +69,6 @@ jobs:
             exit 1
           fi
 
-      # ------------------------------
-      # Commit generated documentation
-      # ------------------------------
       - name: Commit documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
