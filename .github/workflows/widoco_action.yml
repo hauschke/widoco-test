@@ -11,9 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ------------------------------
+      # Checkout repository
+      # ------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ------------------------------
+      # Validate ontology file exists
+      # ------------------------------
       - name: Validate vivo.owl exists
         run: |
           if [ ! -f vivo.owl ]; then
@@ -21,11 +27,17 @@ jobs:
             exit 1
           fi
 
+      # ------------------------------
+      # Hardcode ontology IRI
+      # ------------------------------
       - name: Set ontology IRI
         id: iri
         run: |
-          echo "ontology_iri=http://vivoweb.org/ontology/core" >> "$GITHUB_OUTPUT"
+          echo "ontology_iri=http://example.org/minimal" >> "$GITHUB_OUTPUT"
 
+      # ------------------------------
+      # Determine documentation version
+      # ------------------------------
       - name: Determine documentation version
         id: version
         run: |
@@ -45,24 +57,25 @@ jobs:
           mkdir -p "docs/${{ steps.version.outputs.version }}"
 
       # ------------------------------
-      # Run WIDOCO inside Docker
+      # Run WIDOCO using java -jar
       # ------------------------------
       - name: Run WIDOCO
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:latest \
-            sh -c "
-              mkdir -p /workspace/docs/${{ steps.version.outputs.version }} &&
-              widoco.sh \
-                -ontFile /workspace/vivo.owl \
-                -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
-                -uri '${{ steps.iri.outputs.ontology_iri }}' \
-                -lang en \
-                -rewriteAll \
-                -noPlaceholders
-            "
+            java -jar /Widoco/widoco.jar \
+              -ontFile /workspace/vivo.owl \
+              -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
+              -uri "${{ steps.iri.outputs.ontology_iri }}" \
+              -lang en \
+              -rewriteAll \
+              -noPlaceholders \
+              -ontologyName "Minimal Ontology"
 
+      # ------------------------------
+      # Verify documentation output
+      # ------------------------------
       - name: Verify documentation output
         run: |
           TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
@@ -72,6 +85,9 @@ jobs:
             exit 1
           fi
 
+      # ------------------------------
+      # Commit generated documentation
+      # ------------------------------
       - name: Commit documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
