@@ -39,21 +39,31 @@ jobs:
             VERSION="dev"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Documentation version: $VERSION"
 
       # ------------------------------
-      # Run WIDOCO GitHub Action
+      # Ensure docs folder exists on host
       # ------------------------------
-      - name: Generate ontology documentation with WIDOCO
-        uses: dgarijo/widoco-action@v1
-        with:
-          ontology-file: vivo.owl
-          output-folder: docs/${{ steps.version.outputs.version }}
-          ontology-iri: http://example.org/minimal
-          language: en
-          rewrite-all: true
-          no-placeholders: true
-          ontology-name: "Minimal Ontology"
+      - name: Ensure docs folder exists
+        run: |
+          mkdir -p docs
+          mkdir -p "docs/${{ steps.version.outputs.version }}"
+
+      # ------------------------------
+      # Run WIDOCO using Docker and JAR directly
+      # ------------------------------
+      - name: Run WIDOCO
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            ghcr.io/dgarijo/widoco:latest \
+            java -jar /Widoco/widoco.jar \
+              -ontFile /workspace/vivo.owl \
+              -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
+              -uri "http://example.org/minimal" \
+              -lang en \
+              -rewriteAll \
+              -noPlaceholders \
+              -ontologyName "Minimal Ontology"
 
       # ------------------------------
       # Verify documentation output
