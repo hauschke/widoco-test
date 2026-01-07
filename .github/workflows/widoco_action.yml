@@ -36,16 +36,12 @@ jobs:
           mkdir -p docs
           mkdir -p "docs/${{ steps.version.outputs.version }}"
 
-      - name: Verify WIDOCO jar exists in Docker
-        run: |
-          docker run --rm ghcr.io/dgarijo/widoco:latest ls /Widoco
-
-      - name: Run WIDOCO with debug
+      - name: Run WIDOCO (headless Docker)
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
-            ghcr.io/dgarijo/widoco:latest \
-            java -jar /Widoco/widoco.jar \
+            dgarijo/widoco-headless:latest \
+            widoco.sh \
               -ontFile /workspace/vivo.owl \
               -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
               -uri "http://example.org/minimal" \
