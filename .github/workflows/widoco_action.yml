@@ -17,8 +17,9 @@ jobs:
       - name: Create output directory
         run: mkdir -p widoco-docs
 
-      - name: Run WIDOCO
+      - name: Run WIDOCO via Docker
         run: |
+          docker pull ghcr.io/dgarijo/widoco:latest
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:latest \
