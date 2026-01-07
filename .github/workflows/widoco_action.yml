@@ -25,6 +25,8 @@ jobs:
           if [ ! -f vivo.owl ]; then
             echo "ERROR: vivo.owl not found in repository root"
             exit 1
+          fi
+
 
       # ------------------------------
       # Hardcode ontology IRI
