@@ -96,12 +96,13 @@ jobs:
       # Verify documentation was generated
       # ------------------------------
       - name: Verify documentation output
-        run: |
-          TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
-          if [ ! -f "$TARGET" ]; then
-            echo "ERROR: WIDOCO produced no documentation"
-            ls -R docs || true
-            exit 1
+      run: |
+        TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
+        if [ ! -f "$TARGET" ]; then
+          echo "ERROR: WIDOCO produced no documentation"
+          ls -R docs || true
+          exit 1
+        fi
 
       # ------------------------------
       # Commit generated documentation
