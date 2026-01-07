@@ -14,28 +14,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate ontology file exists
+      # ------------------------------
+      # Validate ontology file
+      # ------------------------------
+      - name: Validate vivo.owl exists
         run: |
-          if [ ! -f "vivo.owl" ]; then
-            echo "vivo.owl not found in repository root"
+          if [ ! -f vivo.owl ]; then
+            echo "ERROR: vivo.owl not found in repository root"
             exit 1
           fi
 
+      # ------------------------------
+      # Extract ontology IRI (RDF/XML)
+      # ------------------------------
       - name: Extract ontology IRI
         id: iri
         run: |
-          IRI=$(grep -Eo 'owl:Ontology[^>]*(rdf:about|IRI)=["'\''][^"'\'']+' vivo.owl \
-            | sed -E 's/.*=["'\'']([^"'\'']+).*/\1/' \
-            | head -n 1)
+          IRI=$(xmllint --xpath \
+            'string(//*[local-name()="Ontology"]/@*[local-name()="about" or local-name()="IRI"])' \
+            vivo.owl 2>/dev/null || true)
 
           if [ -z "$IRI" ]; then
-            echo "No ontology IRI found in vivo.owl"
+            echo "ERROR: Could not extract ontology IRI from vivo.owl"
             exit 1
           fi
 
           echo "ontology_iri=$IRI" >> "$GITHUB_OUTPUT"
-          echo "Detected ontology IRI: $IRI"
+          echo "Ontology IRI: $IRI"
 
+      # ------------------------------
+      # Determine documentation version
+      # ------------------------------
       - name: Determine documentation version
         id: version
         run: |
@@ -48,12 +57,20 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Documentation version: $VERSION"
 
-      - name: Create documentation directory
+      # ------------------------------
+      # Create docs directory in repo
+      # ------------------------------
+      - name: Create docs directory
         run: |
           mkdir -p "docs/${{ steps.version.outputs.version }}"
 
+      # ------------------------------
+      # Run WIDOCO (writes into repo)
+      # ------------------------------
       - name: Run WIDOCO
         run: |
+          docker pull ghcr.io/dgarijo/widoco:latest
+
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:latest \
@@ -65,18 +82,23 @@ jobs:
               -rewriteAll \
               -noPlaceholders
 
-      - name: Verify WIDOCO output
+      # ------------------------------
+      # Verify output exists
+      # ------------------------------
+      - name: Verify documentation output
         run: |
           TARGET="docs/${{ steps.version.outputs.version }}"
-          if [ ! -d "$TARGET" ] || [ -z "$(ls -A "$TARGET")" ]; then
-            echo "WIDOCO produced no documentation"
+          if [ ! -f "$TARGET/index-en.html" ]; then
+            echo "ERROR: WIDOCO produced no documentation"
+            ls -R docs || true
             exit 1
           fi
 
-      - name: Commit generated documentation
+      # ------------------------------
+      # Commit generated documentation
+      # ------------------------------
+      - name: Commit documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Generate ontology documentation (${{
-            steps.version.outputs.version
-          }})"
+          commit_message: "Generate ontology documentation (${{ steps.version.outputs.version }})"
           file_pattern: docs/**
