@@ -12,7 +12,7 @@ jobs:
 
     steps:
       # ------------------------------
-      # Checkout the repository
+      # Checkout repository
       # ------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,7 +26,6 @@ jobs:
             echo "ERROR: vivo.owl not found in repository root"
             exit 1
           fi
-
 
       # ------------------------------
       # Hardcode ontology IRI
@@ -93,16 +92,16 @@ jobs:
               -noPlaceholders
 
       # ------------------------------
-      # Verify documentation was generated
+      # Verify documentation output
       # ------------------------------
       - name: Verify documentation output
-      run: |
-        TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
-        if [ ! -f "$TARGET" ]; then
-          echo "ERROR: WIDOCO produced no documentation"
-          ls -R docs || true
-          exit 1
-        fi
+        run: |
+          TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
+          if [ ! -f "$TARGET" ]; then
+            echo "ERROR: WIDOCO produced no documentation"
+            ls -R docs || true
+            exit 1
+          fi
 
       # ------------------------------
       # Commit generated documentation
