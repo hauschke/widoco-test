@@ -50,9 +50,9 @@ jobs:
           echo "Documentation version: $VERSION"
 
       # ------------------------------
-      # Create docs directory in repository
+      # Create docs directory on host
       # ------------------------------
-      - name: Create docs directory
+      - name: Create docs directory on host
         run: |
           mkdir -p "docs/${{ steps.version.outputs.version }}"
 
@@ -80,16 +80,21 @@ jobs:
       # ------------------------------
       - name: Run WIDOCO
         run: |
+          # Ensure output folder exists inside container
+          mkdir -p "docs/${{ steps.version.outputs.version }}"
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:latest \
-            widoco.sh \
-              -ontFile /workspace/vivo.owl \
-              -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
-              -uri "${{ steps.iri.outputs.ontology_iri }}" \
-              -lang en \
-              -rewriteAll \
-              -noPlaceholders
+            sh -c "
+              mkdir -p /workspace/docs/${{ steps.version.outputs.version }} &&
+              widoco.sh \
+                -ontFile /workspace/vivo.owl \
+                -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
+                -uri '${{ steps.iri.outputs.ontology_iri }}' \
+                -lang en \
+                -rewriteAll \
+                -noPlaceholders
+            "
 
       # ------------------------------
       # Verify documentation output
