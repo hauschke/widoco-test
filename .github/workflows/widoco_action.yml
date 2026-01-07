@@ -14,61 +14,64 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate ontology file
+      - name: Verify ontology file exists
         run: |
-          if [ ! -f vivo.owl ]; then
-            echo "ERROR: vivo.owl not found in repository root"
-            exit 1
-          fi
+          set -e
+          ls -la
+          test -f vivo.owl
 
       - name: Determine documentation version
         id: version
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
-            VERSION="${{ github.ref_name }}"
+            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           else
-            VERSION="dev"
+            echo "version=dev" >> "$GITHUB_OUTPUT"
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Ensure docs folders exist
+      - name: Prepare docs folders
         run: |
-          mkdir -p docs
-          mkdir -p "docs/${{ steps.version.outputs.version }}"
+          mkdir -p docs/${{ steps.version.outputs.version }}
 
-      - name: Pull WIDOCO Docker image
+      - name: Inspect WIDOCO container
         run: |
           docker pull ghcr.io/dgarijo/widoco:v1.4.25
+          docker run --rm ghcr.io/dgarijo/widoco:v1.4.25 ls -R /
 
-      - name: Run WIDOCO via Docker
+      - name: Run WIDOCO with full logging
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:v1.4.25 \
-            java -jar /widoco.jar \
+            java -jar /Widoco/widoco.jar \
               -ontFile /workspace/vivo.owl \
               -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
               -uri "http://vivoweb.org/ontology/core" \
               -lang en \
               -rewriteAll \
               -noPlaceholders \
-              -ontologyName "VIVO Ontology"
+              -ontologyName "VIVO Ontology" \
+            > /workspace/docs/widoco.log 2>&1 || true
 
-      - name: List docs folder
+      - name: Show WIDOCO log
         run: |
-          echo "Listing generated docs:"
-          ls -R "docs/${{ steps.version.outputs.version }}" || true
+          echo "===== widoco.log ====="
+          cat docs/widoco.log || true
+          echo "======================"
 
-      - name: Verify documentation
+      - name: List generated documentation
+        run: |
+          ls -R docs || true
+
+      - name: Verify documentation output
         run: |
           TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
           if [ ! -f "$TARGET" ]; then
-            echo "ERROR: documentation not found"
-            ls -R docs || true
+            echo "ERROR: documentation not generated"
             exit 1
           fi
 
-      - name: Commit generated documentation
+      - name: Commit documentation and logs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generate ontology documentation (${{ steps.version.outputs.version }})"
