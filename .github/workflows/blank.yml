@@ -1,0 +1,34 @@
+name: Create Ontology Documentation
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+jobs:
+  widoco:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create output directory
+        run: mkdir -p widoco-docs
+
+      - name: Run WIDOCO
+        uses: docker://ghcr.io/dgarijo/widoco:latest
+        with:
+          args: >
+            -ontFile /github/workspace/vivo.owl
+            -outFolder /github/workspace/widoco-docs
+            -lang en
+            -rewriteAll
+            -noPlaceholders
+
+      - name: Commit generated documentation
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Generate ontology documentation with WIDOCO"
+          file_pattern: widoco-docs/*
