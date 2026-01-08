@@ -1,46 +1,49 @@
-name: Generate ontology docs
+name: Generate Ontology Documentation
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'vivo.owl'
   workflow_dispatch:
 
 jobs:
   widoco:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Java
+      - name: Set up Java 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
+
+      - name: Prepare directories
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/docs/dev"
+          mkdir -p "$GITHUB_WORKSPACE/docs/logs"
 
       - name: Download WIDOCO
         run: |
-          curl -L -o widoco.jar https://github.com/dgarijo/Widoco/releases/latest/download/Widoco-1.4.13-jar-with-dependencies.jar
+          wget -O "$GITHUB_WORKSPACE/widoco.jar" https://github.com/dgarijo/Widoco/releases/download/1.4.18/Widoco-1.4.18-jar-with-dependencies.jar
 
-      - name: Generate documentation
+      - name: Run WIDOCO
         run: |
-          mkdir -p docs/dev logs
-          java -jar widoco.jar \
-            -ontFile vivo.owl \
-            -outFolder docs/dev \
+          java -jar "$GITHUB_WORKSPACE/widoco.jar" \
+            -ontFile "$GITHUB_WORKSPACE/vivo.owl" \
+            -outFolder "$GITHUB_WORKSPACE/docs/dev" \
             -lang en \
             -rewriteAll \
             -includeImportedOntologies \
             -noPlaceHolderText \
-            > docs/logs/widoco.log 2>&1
-
-      - name: Show docs folder
-        run: |
-          ls -R docs/dev
+            > "$GITHUB_WORKSPACE/docs/logs/widoco.log" 2>&1
 
       - name: Commit generated docs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generate ontology documentation (dev)"
           file_pattern: "docs/**"
+          author_name: "github-actions[bot]"
+          author_email: "41898282+github-actions[bot]@users.noreply.github.com"
