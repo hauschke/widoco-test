@@ -9,41 +9,41 @@ on:
 jobs:
   widoco:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Java 17
+      - name: Set up directories
+        run: |
+          mkdir -p docs/dev logs
+
+      - name: Download latest WIDOCO JAR
+        run: |
+          wget -O "$GITHUB_WORKSPACE/widoco.jar" \
+            https://github.com/dgarijo/Widoco/releases/latest/download/Widoco-jar-with-dependencies.jar
+
+      - name: Verify Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Prepare directories
-        run: |
-          mkdir -p "$GITHUB_WORKSPACE/docs/dev"
-          mkdir -p "$GITHUB_WORKSPACE/docs/logs"
-
-      - name: Download WIDOCO
-        run: |
-          wget -O "$GITHUB_WORKSPACE/widoco.jar" https://github.com/dgarijo/Widoco/releases/latest/download/Widoco-jar-with-dependencies.jar
-
       - name: Run WIDOCO
         run: |
+          echo "===== widoco.log =====" > docs/logs/widoco.log
           java -jar "$GITHUB_WORKSPACE/widoco.jar" \
             -ontFile "$GITHUB_WORKSPACE/vivo.owl" \
             -outFolder "$GITHUB_WORKSPACE/docs/dev" \
+            -includeImportedOntologies \
             -lang en \
             -rewriteAll \
-            -includeImportedOntologies \
-            -noPlaceHolderText \
-            > "$GITHUB_WORKSPACE/docs/logs/widoco.log" 2>&1
+            >> docs/logs/widoco.log 2>&1
 
-      - name: Commit generated docs
+      - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generate ontology documentation (dev)"
           file_pattern: "docs/**"
           author_name: "github-actions[bot]"
           author_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          push: true
