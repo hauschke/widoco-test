@@ -23,8 +23,8 @@ jobs:
       - name: Run WIDOCO
         uses: soilwise-he/widoco-action@main
         with:
-          ontology-file: vivo.owl
-          output-path: docs/dev
+          ontology-file: vivo.owl       # your local OWL file
+          output-path: docs/dev         # output folder
           args: >
             -lang en
             -rewriteAll
