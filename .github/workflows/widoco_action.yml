@@ -23,8 +23,8 @@ jobs:
       - name: Run WIDOCO
         uses: soilwise-he/widoco-action@main
         with:
-          file-input: vivo.owl        # local ontology
-          folder-output: docs/dev     # folder where docs should be written
+          file-input: ./vivo.owl        # local ontology
+          folder-output: ./docs/dev     # folder where docs should be written
           args: >
             -lang en
             -rewriteAll
