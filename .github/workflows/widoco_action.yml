@@ -28,16 +28,20 @@ jobs:
             echo "version=dev" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Prepare docs folders
+      - name: Prepare docs folders (required by WIDOCO)
         run: |
-          mkdir -p docs/${{ steps.version.outputs.version }}
+          BASE="docs/${{ steps.version.outputs.version }}"
+          mkdir -p "$BASE/resources"
+          mkdir -p "$BASE/sections"
+          mkdir -p "$BASE/provenance"
           mkdir -p docs/logs
+          chmod -R 777 docs
 
       - name: Pull WIDOCO image
         run: |
           docker pull ghcr.io/dgarijo/widoco:v1.4.25
 
-      - name: Run WIDOCO (CORRECT entrypoint usage)
+      - name: Run WIDOCO (correct entrypoint)
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
@@ -47,17 +51,17 @@ jobs:
               -lang en \
               -rewriteAll \
               -noPlaceHolderText \
-            > docs/logs/widoco.log 2>&1 || true
+            > docs/logs/widoco.log 2>&1
 
       - name: Show WIDOCO log
         run: |
           echo "===== widoco.log ====="
-          cat docs/logs/widoco.log || true
+          cat docs/logs/widoco.log
           echo "======================"
 
       - name: List generated files
         run: |
-          ls -R docs || true
+          ls -R docs
 
       - name: Verify documentation output
         run: |
