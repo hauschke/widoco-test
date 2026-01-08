@@ -6,6 +6,9 @@ on:
     types:
       - published
 
+permissions:
+  contents: write
+
 jobs:
   widoco:
     runs-on: ubuntu-latest
