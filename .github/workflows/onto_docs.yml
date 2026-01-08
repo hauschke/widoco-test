@@ -7,35 +7,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-docs:
+  generate-docs:
     runs-on: ubuntu-latest
+
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Set up Python 3.11
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: 3.11
 
+      # 3. Install PyLODE
       - name: Install PyLODE
         run: |
           python -m pip install --upgrade pip
           python -m pip install pyLODE
-          python -m pyLODE vivo.owl docs/dev
-  
-      - name: Ensure directories exist
+
+      # 4. Prepare output folder
+      - name: Prepare folders
         run: mkdir -p docs/dev
 
-      - name: Generate ontology documentation
-        run: |
-          python -m pyLODE vivo.owl docs/dev
+      # 5. Generate HTML documentation
+      - name: Generate HTML documentation
+        run: python -m pyLODE vivo.owl docs/dev
 
-      - name: Commit and push documentation
+      # 6. Commit and push generated documentation
+      - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Generate ontology documentation (dev)"
+          commit_message: "Generate ontology documentation (PyLODE)"
           file_pattern: docs/**
           branch: main
-          author_name: GitHub Actions
-          author_email: actions@github.com
+          add_options: "--all"
