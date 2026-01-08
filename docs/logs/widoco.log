@@ -1,0 +1,23 @@
+[main] INFO widoco.gui.GuiController - 
+
+--WIzard for DOCumenting Ontologies (WIDOCO).
+ https://w3id.org/widoco/
+
+[main] INFO widoco.WidocoUtils - Copying resource folder from lode to tmp1767871174651
+[main] WARN widoco.Configuration - Error while reading configuration properties from [/usr/local/widoco/config/config.properties]: /usr/local/widoco/config/config.properties (No such file or directory)
+[main] WARN widoco.Configuration - Error while loading the default property file: /usr/local/widoco/config/config.properties (No such file or directory)
+[main] WARN widoco.Configuration - Error while reading configuration properties from []:  (No such file or directory)
+[main] WARN widoco.Configuration - Error while reading configuration properties from []:  (No such file or directory)
+[main] INFO widoco.gui.GuiController - Processed configuration, loading ontology now. isFromFile=true
+[main] INFO widoco.WidocoUtils - Load ontology /workspace/vivo.owl
+[main] INFO widoco.CatalogIRIMapper - Creating JenaCatalogIRIMapper
+[main] WARN org.semanticweb.owlapi.util.SAXParsers - http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit not supported by parser type org.apache.xerces.jaxp.SAXParserImpl, error message: Property 'http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit' is not recognized.
+[main] WARN org.semanticweb.owlapi.util.SAXParsers - entityExpansionLimit not supported by parser type org.apache.xerces.jaxp.SAXParserImpl, error message: Property 'entityExpansionLimit' is not recognized.
+[main] INFO widoco.gui.GuiController - Generating documentation for /workspace/vivo.owl in lang en
+[main] INFO widoco.gui.GuiController - Load properties from the ontology in lang en
+[main] INFO widoco.CreateResources - Generate documentation in /workspace/docs/dev
+[main] INFO widoco.CreateResources - - ontology IRI: http://example.org/minimal
+[main] INFO widoco.LODEParser - Parsing Complete!
+[main] INFO widoco.CreateResources - No previous version provided. No changelog produced!
+[main] INFO widoco.Configuration - Doc successfully generated for lang en
+Documentation generated successfully
