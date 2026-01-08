@@ -1,9 +1,59 @@
+Unable to find image 'ghcr.io/dgarijo/widoco:v1.4.25' locally
+v1.4.25: Pulling from dgarijo/widoco
+1fe172e4850f: Pulling fs layer
+44d3aa8d0766: Pulling fs layer
+6ce99fdf16e8: Pulling fs layer
+0dea66baccc3: Pulling fs layer
+733dbdb9a280: Pulling fs layer
+6d6c9eb561d8: Pulling fs layer
+fba06992946f: Pulling fs layer
+fce26b419e59: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+b12f3b2c5f61: Pulling fs layer
+0dea66baccc3: Waiting
+733dbdb9a280: Waiting
+6d6c9eb561d8: Waiting
+4f4fb700ef54: Waiting
+fba06992946f: Waiting
+b12f3b2c5f61: Waiting
+fce26b419e59: Waiting
+44d3aa8d0766: Download complete
+1fe172e4850f: Verifying Checksum
+1fe172e4850f: Download complete
+0dea66baccc3: Verifying Checksum
+0dea66baccc3: Download complete
+733dbdb9a280: Verifying Checksum
+733dbdb9a280: Download complete
+6d6c9eb561d8: Verifying Checksum
+6d6c9eb561d8: Download complete
+fce26b419e59: Verifying Checksum
+fce26b419e59: Download complete
+fba06992946f: Verifying Checksum
+fba06992946f: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+1fe172e4850f: Pull complete
+b12f3b2c5f61: Verifying Checksum
+b12f3b2c5f61: Download complete
+6ce99fdf16e8: Verifying Checksum
+6ce99fdf16e8: Download complete
+44d3aa8d0766: Pull complete
+6ce99fdf16e8: Pull complete
+0dea66baccc3: Pull complete
+733dbdb9a280: Pull complete
+6d6c9eb561d8: Pull complete
+fba06992946f: Pull complete
+fce26b419e59: Pull complete
+4f4fb700ef54: Pull complete
+b12f3b2c5f61: Pull complete
+Digest: sha256:ef0548a0522d26cc73f3c3ecdb265cbed59aab9eeaa51f18a6096acbc239a41c
+Status: Downloaded newer image for ghcr.io/dgarijo/widoco:v1.4.25
 [main] INFO widoco.gui.GuiController - 
 
 --WIzard for DOCumenting Ontologies (WIDOCO).
  https://w3id.org/widoco/
 
-[main] INFO widoco.WidocoUtils - Copying resource folder from lode to tmp1767872029336
+[main] INFO widoco.WidocoUtils - Copying resource folder from lode to tmp1767890178357
 [main] WARN widoco.Configuration - Error while reading configuration properties from [/usr/local/widoco/config/config.properties]: /usr/local/widoco/config/config.properties (No such file or directory)
 [main] WARN widoco.Configuration - Error while loading the default property file: /usr/local/widoco/config/config.properties (No such file or directory)
 [main] WARN widoco.Configuration - Error while reading configuration properties from []:  (No such file or directory)
@@ -18,6 +68,58 @@
 [main] INFO widoco.CreateResources - Generate documentation in /workspace/docs/dev
 [main] INFO widoco.CreateResources - - ontology IRI: http://vivoweb.org/ontology/core
 [main] INFO widoco.LODEParser - Parsing Complete!
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/jquery.js (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /lode/jquery.js - /workspace/docs/dev/resources/jquery.js (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/marked.min.js (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /lode/marked.min.js - /workspace/docs/dev/resources/marked.min.js (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/rdf.icon (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /widoco/images/rdf.icon - /workspace/docs/dev/resources/rdf.icon (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/primer.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /lode/lodeprimer.css - /workspace/docs/dev/resources/primer.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/rec.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /lode/rec.css - /workspace/docs/dev/resources/rec.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/extra.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /lode/extra.css - /workspace/docs/dev/resources/extra.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/owl.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /lode/owl.css - /workspace/docs/dev/resources/owl.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/dark.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /darkmode/dark.css - /workspace/docs/dev/resources/dark.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/light.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /darkmode/light.css - /workspace/docs/dev/resources/light.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/slider.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /darkmode/slider.css - /workspace/docs/dev/resources/slider.css (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/dark-mode-toggle.mjs (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /darkmode/dark-mode-toggle.mjs - /workspace/docs/dev/resources/dark-mode-toggle.mjs (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/sun.svg (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /darkmode/sun.svg - /workspace/docs/dev/resources/sun.svg (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/resources/moon.svg (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /darkmode/moon.svg - /workspace/docs/dev/resources/moon.svg (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying resource. /workspace/docs/dev/readme.md (Permission denied)
+[main] ERROR widoco.WidocoUtils - Exception while copying /widoco/readme.md - /workspace/docs/dev/readme.md (Permission denied)
+[main] ERROR widoco.CreateResources - Error while creating the file Permission denied
+/workspace/docs/dev/sections/abstract-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file Permission denied
+/workspace/docs/dev/sections/introduction-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file Permission denied
+/workspace/docs/dev/sections/ns-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file /workspace/docs/dev/sections/overview-en.html (Permission denied)
+/workspace/docs/dev/sections/overview-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file /workspace/docs/dev/sections/description-en.html (Permission denied)
+/workspace/docs/dev/sections/description-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file /workspace/docs/dev/sections/crossref-en.html (Permission denied)
+/workspace/docs/dev/sections/crossref-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file Permission denied
+/workspace/docs/dev/sections/references-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file /workspace/docs/dev/provenance/provenance-en.html (Permission denied)
+/workspace/docs/dev/provenance/provenance-en.html
+[main] ERROR widoco.CreateResources - Error while creating the file /workspace/docs/dev/provenance/provenance-en.ttl (Permission denied)
+/workspace/docs/dev/provenance/provenance-en.ttl
 [main] INFO widoco.CreateResources - No previous version provided. No changelog produced!
+[main] ERROR widoco.WidocoUtils - Error while writing the model to file /workspace/docs/dev/ontology.owl (Permission denied)
+[main] ERROR widoco.WidocoUtils - Error while writing the model to file /workspace/docs/dev/ontology.ttl (Permission denied)
+[main] ERROR widoco.WidocoUtils - Error while writing the model to file /workspace/docs/dev/ontology.nt (Permission denied)
+[main] ERROR widoco.WidocoUtils - Error while writing the model to file /workspace/docs/dev/ontology.jsonld (Permission denied)
+[main] ERROR widoco.CreateResources - Error while creating the file /workspace/docs/dev/index-en.html (Permission denied)
+/workspace/docs/dev/index-en.html
 [main] INFO widoco.Configuration - Doc successfully generated for lang en
 Documentation generated successfully
