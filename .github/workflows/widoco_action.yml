@@ -13,35 +13,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Prepare directories
         run: |
-          mkdir -p docs/dev
-          mkdir -p docs/logs
+          mkdir -p docs/dev docs/logs
           chmod -R u+rwX docs
 
-      - name: Pull WIDOCO image
-        run: docker pull dgarijo/widoco
+      - name: Run WIDOCO (soilwise-he action, local OWL)
+        uses: soilwise-he/widoco-action@v1
+        with:
+          ontology-file: vivo.owl
+          output-path: docs/dev
+          args: >
+            -lang en
+            -rewriteAll
+            -includeImportedOntologies
+            -noPlaceHolderText
 
-      - name: Run WIDOCO
+      - name: Ensure permissions
         run: |
-          docker run --rm \
-            -v "${PWD}:/workspace" \
-            dgarijo/widoco \
-            java -jar /widoco/widoco.jar \
-              -ontFile /workspace/vivo.owl \
-              -outFolder /workspace/docs/dev \
-              -lang en \
-              -rewriteAll \
-              -includeImportedOntologies \
-              -noPlaceHolderText \
-          2>&1 | tee docs/logs/widoco.log
-
-      - name: Fix permissions after Docker
-        run: |
-          sudo chown -R $USER:$USER docs
+          chmod -R u+rwX docs
 
       - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
