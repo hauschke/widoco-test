@@ -16,11 +16,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare output directories
+      - name: Prepare directories
         run: |
-          rm -rf docs/dev
-          mkdir -p docs/dev docs/logs
+          mkdir -p docs/dev
+          mkdir -p docs/logs
           chmod -R u+rwX docs
+
+      - name: Pull WIDOCO image
+        run: docker pull dgarijo/widoco
 
       - name: Run WIDOCO
         run: |
@@ -34,15 +37,16 @@ jobs:
               -rewriteAll \
               -includeImportedOntologies \
               -noPlaceHolderText \
-            > /workspace/docs/logs/widoco.log 2>&1
+          2>&1 | tee docs/logs/widoco.log
 
-      - name: Show WIDOCO log
-        if: always()
+      - name: Fix permissions after Docker
         run: |
-          cat docs/logs/widoco.log || true
+          sudo chown -R $USER:$USER docs
 
       - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Generate ontology documentation (dev)
           file_pattern: docs/**
+          commit_message: Generate ontology documentation (dev)
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
