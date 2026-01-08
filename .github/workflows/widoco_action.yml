@@ -1,44 +1,41 @@
-name: Generate ontology documentation (dev)
+name: Generate ontology docs
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   widoco:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Prepare directories
-        run: |
-          mkdir -p docs/dev docs/logs
-          chmod -R u+rwX docs
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Run WIDOCO
+      - name: Generate documentation
         uses: soilwise-he/widoco-action@main
         with:
-          file-input: ./vivo.owl        # local ontology
-          folder-output: ./docs/dev     # folder where docs should be written
+          file-input: vivo.owl         # OWL file in repo
+          folder-output: docs/dev      # where HTML is written
           args: >
             -lang en
             -rewriteAll
             -includeImportedOntologies
             -noPlaceHolderText
 
-      - name: Fix permissions
+      - name: Show docs folder
         run: |
-          chmod -R u+rwX docs
+          ls -R docs/dev
 
-      - name: Commit generated documentation
+      - name: Commit generated docs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: docs/**
-          commit_message: Generate ontology documentation (dev)
-          commit_user_name: github-actions[bot]
-          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit_message: "Generate ontology documentation (dev)"
+          file_pattern: "docs/**"
