@@ -27,7 +27,7 @@ jobs:
 
       - name: Download WIDOCO
         run: |
-          wget -O "$GITHUB_WORKSPACE/widoco.jar" https://github.com/dgarijo/Widoco/releases/download/1.4.18/Widoco-1.4.18-jar-with-dependencies.jar
+          wget -O "$GITHUB_WORKSPACE/widoco.jar" https://github.com/dgarijo/Widoco/releases/latest/download/Widoco-jar-with-dependencies.jar
 
       - name: Run WIDOCO
         run: |
