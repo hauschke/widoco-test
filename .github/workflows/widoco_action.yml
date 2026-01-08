@@ -19,16 +19,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Download WIDOCO
+        run: |
+          curl -L -o widoco.jar https://github.com/dgarijo/Widoco/releases/latest/download/Widoco-1.4.13-jar-with-dependencies.jar
+
       - name: Generate documentation
-        uses: soilwise-he/widoco-action@main
-        with:
-          file-input: vivo.owl         # OWL file in repo
-          folder-output: docs/dev      # where HTML is written
-          args: >
-            -lang en
-            -rewriteAll
-            -includeImportedOntologies
-            -noPlaceHolderText
+        run: |
+          mkdir -p docs/dev logs
+          java -jar widoco.jar \
+            -ontFile vivo.owl \
+            -outFolder docs/dev \
+            -lang en \
+            -rewriteAll \
+            -includeImportedOntologies \
+            -noPlaceHolderText \
+            > docs/logs/widoco.log 2>&1
 
       - name: Show docs folder
         run: |
