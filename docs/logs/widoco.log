@@ -3,7 +3,7 @@
 --WIzard for DOCumenting Ontologies (WIDOCO).
  https://w3id.org/widoco/
 
-[main] INFO widoco.WidocoUtils - Copying resource folder from lode to tmp1767871174651
+[main] INFO widoco.WidocoUtils - Copying resource folder from lode to tmp1767871619995
 [main] WARN widoco.Configuration - Error while reading configuration properties from [/usr/local/widoco/config/config.properties]: /usr/local/widoco/config/config.properties (No such file or directory)
 [main] WARN widoco.Configuration - Error while loading the default property file: /usr/local/widoco/config/config.properties (No such file or directory)
 [main] WARN widoco.Configuration - Error while reading configuration properties from []:  (No such file or directory)
