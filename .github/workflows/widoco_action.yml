@@ -16,13 +16,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare folders
+      - name: Generate documentation with WIDOCO
         run: |
           mkdir -p docs/dev
           mkdir -p docs/logs
 
-      - name: Generate documentation with WIDOCO
-        run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:v1.4.25 \
@@ -32,7 +30,7 @@ jobs:
               -rewriteAll \
               -includeImportedOntologies \
               -getOntologyMetadata \
-            > /workspace/docs/logs/widoco.log 2>&1
+            > docs/logs/widoco.log 2>&1
 
       - name: Show WIDOCO log
         run: |
