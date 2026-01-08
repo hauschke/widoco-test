@@ -20,8 +20,8 @@ jobs:
           mkdir -p docs/dev docs/logs
           chmod -R u+rwX docs
 
-      - name: Run WIDOCO (soilwise-he action, local OWL)
-        uses: soilwise-he/widoco-action@v1
+      - name: Run WIDOCO
+        uses: soilwise-he/widoco-action@main
         with:
           ontology-file: vivo.owl
           output-path: docs/dev
@@ -31,7 +31,7 @@ jobs:
             -includeImportedOntologies
             -noPlaceHolderText
 
-      - name: Ensure permissions
+      - name: Fix permissions
         run: |
           chmod -R u+rwX docs
 
