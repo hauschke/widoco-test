@@ -31,6 +31,7 @@ jobs:
       - name: Prepare docs folders
         run: |
           mkdir -p docs/${{ steps.version.outputs.version }}
+          mkdir -p docs/logs
 
       - name: Pull WIDOCO image
         run: |
@@ -48,11 +49,13 @@ jobs:
               -rewriteAll \
               -noPlaceholders \
               -ontologyName "VIVO Ontology" \
-            > /workspace/docs/widoco.log 2>&1 || true
+            > docs/logs/widoco.log 2>&1 || true
 
       - name: Show WIDOCO log
         run: |
-          cat docs/widoco.log || true
+          echo "===== widoco.log ====="
+          cat docs/logs/widoco.log || true
+          echo "======================"
 
       - name: List generated files
         run: |
@@ -66,7 +69,7 @@ jobs:
             exit 1
           fi
 
-      - name: Commit documentation and log
+      - name: Commit documentation and logs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generate ontology documentation (${{ steps.version.outputs.version }})"
