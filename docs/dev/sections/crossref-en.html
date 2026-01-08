@@ -9,6 +9,9 @@ This section provides details for each class and property defined by Minimal Ont
  <div class="entity" id="Organization">
   <h3>Organization<sup class="type-c" title="class">c</sup> <span class="backlink"> back to <a href="#toc">ToC</a> or <a href="#classes">Class ToC</a> </span></h3>
   <p><strong>IRI:</strong> http://example.org/minimal#Organization</p>
+  <div class="comment">
+   <span class="markdown">A group of people with a common goal</span>
+  </div>
   <dl class="description">
    <dt>
     is in range of
@@ -16,17 +19,26 @@ This section provides details for each class and property defined by Minimal Ont
    <dd>
     <a href="#memberOf" title="http://example.org/minimal#memberOf">member of</a> <sup class="type-op" title="object property">op</sup>
    </dd>
+   <dt>
+    has members
+   </dt>
+   <dd>
+    <a href="#ACME_Corp" title="http://example.org/minimal#ACME_Corp">ACME Corp</a> <sup class="type-ni" title="named individual">ni</sup>
+   </dd>
   </dl>
  </div>
  <div class="entity" id="Person">
   <h3>Person<sup class="type-c" title="class">c</sup> <span class="backlink"> back to <a href="#toc">ToC</a> or <a href="#classes">Class ToC</a> </span></h3>
   <p><strong>IRI:</strong> http://example.org/minimal#Person</p>
+  <div class="comment">
+   <span class="markdown">A human being</span>
+  </div>
   <dl class="description">
    <dt>
     is in domain of
    </dt>
    <dd>
-    <a href="#memberOf" title="http://example.org/minimal#memberOf">member of</a> <sup class="type-op" title="object property">op</sup>
+    <a href="#birthDate" title="http://example.org/minimal#birthDate">birth date</a> <sup class="type-dp" title="data property">dp</sup>, <a href="#memberOf" title="http://example.org/minimal#memberOf">member of</a> <sup class="type-op" title="object property">op</sup>
    </dd>
    <dt>
     has members
@@ -61,12 +73,50 @@ This section provides details for each class and property defined by Minimal Ont
    </dl>
   </div>
  </div>
+</div><div xmlns:widoco="https://w3id.org/widoco/vocab#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="dataproperties">
+ <h3 id="dataproperties-headline" class="list">Data Properties</h3>
+ <ul class="hlist">
+  <li><a href="#birthDate" title="http://example.org/minimal#birthDate">birth date</a></li>
+ </ul>
+ <div class="entity" id="birthDate">
+  <h3>birth date<sup class="type-dp" title="data property">dp</sup> <span class="backlink"> back to <a href="#toc">ToC</a> or <a href="#dataproperties">Data Property ToC</a> </span></h3>
+  <p><strong>IRI:</strong> http://example.org/minimal#birthDate</p>
+  <div class="description">
+   <dl>
+    <dt>
+     has domain
+    </dt>
+    <dd>
+     <a href="#Person" title="http://example.org/minimal#Person">Person</a> <sup class="type-c" title="class">c</sup>
+    </dd>
+    <dt>
+     has range
+    </dt>
+    <dd>
+     <a href="http://www.w3.org/2001/XMLSchema#date" target="_blank" title="http://www.w3.org/2001/XMLSchema#date">date</a>
+    </dd>
+   </dl>
+  </div>
+ </div>
 </div><div xmlns:widoco="https://w3id.org/widoco/vocab#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="namedindividuals">
  <h3 id="namedindividuals" class="list">Named Individuals</h3>
  <ul class="hlist">
+  <li><a href="#ACME_Corp" title="http://example.org/minimal#ACME_Corp">ACME Corp</a></li>
   <li><a href="#Alice" title="http://example.org/minimal#Alice">Alice</a></li>
   <li><a href="#Bob" title="http://example.org/minimal#Bob">Bob</a></li>
  </ul>
+ <div class="entity" id="ACME_Corp">
+  <h3>ACME Corp<sup class="type-ni" title="named individual">ni</sup> <span class="backlink"> back to <a href="#toc">ToC</a> or <a href="#namedindividuals">Named Individual ToC</a> </span></h3>
+  <p><strong>IRI:</strong> http://example.org/minimal#ACME_Corp</p>
+  <dl class="description">
+   <dt>
+    belongs to
+   </dt>
+   <dd>
+    <a href="#Organization" title="http://example.org/minimal#Organization">Organization</a> <sup class="type-c" title="class">c</sup>
+   </dd>
+  </dl>
+ </div>
  <div class="entity" id="Alice">
   <h3>Alice<sup class="type-ni" title="named individual">ni</sup> <span class="backlink"> back to <a href="#toc">ToC</a> or <a href="#namedindividuals">Named Individual ToC</a> </span></h3>
   <p><strong>IRI:</strong> http://example.org/minimal#Alice</p>
@@ -96,6 +146,7 @@ This section provides details for each class and property defined by Minimal Ont
 <div   class="entity">
 <sup class="type-c" title="Classes">c</sup>: Classes <br/>
 <sup class="type-op" title="Object Properties">op</sup>: Object Properties <br/>
+<sup class="type-dp" title="Data Properties">dp</sup>: Data Properties <br/>
 <sup class="type-ni" title="Named Individuals">ni</sup>: Named Individuals <br/>
 </div>
 </div>

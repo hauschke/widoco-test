@@ -11,6 +11,14 @@
                               owl:versionInfo "1.0.0" .
 
 #################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#date
+xsd:date rdf:type rdfs:Datatype .
+
+
+#################################################################
 #    Object Properties
 #################################################################
 
@@ -22,22 +30,41 @@
 
 
 #################################################################
+#    Data properties
+#################################################################
+
+###  http://example.org/minimal#birthDate
+:birthDate rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Person ;
+           rdfs:range xsd:date ;
+           rdfs:label "birth date"@en .
+
+
+#################################################################
 #    Classes
 #################################################################
 
 ###  http://example.org/minimal#Organization
 :Organization rdf:type owl:Class ;
+              rdfs:comment "A group of people with a common goal"@en ;
               rdfs:label "Organization"@en .
 
 
 ###  http://example.org/minimal#Person
 :Person rdf:type owl:Class ;
+        rdfs:comment "A human being"@en ;
         rdfs:label "Person"@en .
 
 
 #################################################################
 #    Individuals
 #################################################################
+
+###  http://example.org/minimal#ACME_Corp
+:ACME_Corp rdf:type owl:NamedIndividual ,
+                    :Organization ;
+           rdfs:label "ACME Corp"@en .
+
 
 ###  http://example.org/minimal#Alice
 :Alice rdf:type owl:NamedIndividual ,
