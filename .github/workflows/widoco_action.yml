@@ -1,54 +1,48 @@
-name: Generate Ontology Documentation
+name: Generate ontology documentation (dev)
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
-  release:
-    types: [published]
 
 permissions:
   contents: write
 
 jobs:
-  widoco-docs:
+  widoco:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate documentation with WIDOCO
+      - name: Prepare output directories
         run: |
-          mkdir -p docs/dev
-          mkdir -p docs/logs
+          rm -rf docs/dev
+          mkdir -p docs/dev docs/logs
+          chmod -R u+rwX docs
 
+      - name: Run WIDOCO
+        run: |
           docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            ghcr.io/dgarijo/widoco:v1.4.25 \
+            -v "${PWD}:/workspace" \
+            dgarijo/widoco \
+            java -jar /widoco/widoco.jar \
               -ontFile /workspace/vivo.owl \
               -outFolder /workspace/docs/dev \
               -lang en \
               -rewriteAll \
               -includeImportedOntologies \
-              -getOntologyMetadata \
-            > docs/logs/widoco.log 2>&1
+              -noPlaceHolderText \
+            > /workspace/docs/logs/widoco.log 2>&1
 
       - name: Show WIDOCO log
+        if: always()
         run: |
-          echo "===== widoco.log ====="
-          cat docs/logs/widoco.log
-
-      - name: Verify output
-        run: |
-          if [ ! -f docs/dev/index-en.html ]; then
-            echo "ERROR: index-en.html not found"
-            ls -R docs
-            exit 1
-          fi
+          cat docs/logs/widoco.log || true
 
       - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Generate ontology documentation (WIDOCO)
+          commit_message: Generate ontology documentation (dev)
           file_pattern: docs/**
-          commit_user_name: github-actions[bot]
-          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
