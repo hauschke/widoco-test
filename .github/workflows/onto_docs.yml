@@ -33,7 +33,7 @@ jobs:
 
       # 5. Generate HTML documentation
       - name: Generate HTML documentation
-        run: python -m pyLODE vivo.owl docs/dev
+        run: python -m pylode vivo.owl docs/dev
 
       # 6. Commit and push generated documentation
       - name: Commit changes
