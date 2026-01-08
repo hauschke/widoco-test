@@ -37,18 +37,16 @@ jobs:
         run: |
           docker pull ghcr.io/dgarijo/widoco:v1.4.25
 
-      - name: Run WIDOCO (local ontology, no -uri)
+      - name: Run WIDOCO (CORRECT entrypoint usage)
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:v1.4.25 \
-            java -jar /Widoco/widoco.jar \
               -ontFile /workspace/vivo.owl \
               -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
               -lang en \
               -rewriteAll \
-              -noPlaceholders \
-              -ontologyName "VIVO Ontology" \
+              -noPlaceHolderText \
             > docs/logs/widoco.log 2>&1 || true
 
       - name: Show WIDOCO log
