@@ -1,73 +1,56 @@
 name: Generate Ontology Documentation
 
-# Trigger manually or on release
 on:
   workflow_dispatch:
   release:
     types: [published]
 
-# Allow the workflow to push back to the repo
 permissions:
   contents: write
 
 jobs:
   widoco-docs:
     runs-on: ubuntu-latest
-    steps:
-      # 1. Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
-      # 2. Create required folders
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Prepare folders
         run: |
           mkdir -p docs/dev
           mkdir -p docs/logs
 
-      # 3. Cache Docker image
-      - name: Cache WIDOCO Docker image
-        uses: actions/cache@v3
-        with:
-          path: /tmp/widoco-image
-          key: widoco-image-latest
-          restore-keys: widoco-image-latest
-
-      # 4. Run WIDOCO
       - name: Generate documentation with WIDOCO
         run: |
-          echo "Starting WIDOCO..."
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:v1.4.25 \
-            -ontFile /workspace/vivo.owl \
-            -outFolder /workspace/docs/dev \
-            -lang en \
-            -rewriteAll \
-            -noPlaceHolderText \
-            -includeImportedOntologies \
-            -getOntologyMetadata \
+              -ontFile /workspace/vivo.owl \
+              -outFolder /workspace/docs/dev \
+              -lang en \
+              -rewriteAll \
+              -includeImportedOntologies \
+              -getOntologyMetadata \
             > /workspace/docs/logs/widoco.log 2>&1
 
-      # 5. Verify WIDOCO output
-      - name: Verify documentation
+      - name: Show WIDOCO log
         run: |
-          TARGET="docs/dev/index-en.html"
-          echo "===== WIDOCO LOG ====="
+          echo "===== widoco.log ====="
           cat docs/logs/widoco.log
-          echo "===== Check target ====="
-          if [ ! -f "$TARGET" ]; then
-            echo "ERROR: documentation not found"
+
+      - name: Verify output
+        run: |
+          if [ ! -f docs/dev/index-en.html ]; then
+            echo "ERROR: index-en.html not found"
             ls -R docs
             exit 1
-          else
-            echo "Documentation generated successfully: $TARGET"
           fi
 
-      # 6. Commit and push generated docs
       - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Generate ontology documentation (dev)
+          commit_message: Generate ontology documentation (WIDOCO)
           file_pattern: docs/**
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
