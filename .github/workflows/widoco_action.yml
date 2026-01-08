@@ -2,48 +2,37 @@ name: Generate Ontology Documentation
 
 on:
   push:
-    paths:
-      - 'vivo.owl'
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  widoco:
+  build-docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up directories
-        run: |
-          mkdir -p docs/dev logs
-
-      - name: Download latest WIDOCO JAR
-        run: |
-          wget -O "$GITHUB_WORKSPACE/widoco.jar" \
-            https://github.com/dgarijo/Widoco/releases/latest/download/Widoco-jar-with-dependencies.jar
-
-      - name: Verify Java
-        uses: actions/setup-java@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          distribution: temurin
-          java-version: 17
+          python-version: "3.11"
 
-      - name: Run WIDOCO
+      - name: Install PyLODE
+        run: pip install pyLODE
+
+      - name: Ensure directories exist
+        run: mkdir -p docs/dev
+
+      - name: Generate ontology documentation
         run: |
-          echo "===== widoco.log =====" > docs/logs/widoco.log
-          java -jar "$GITHUB_WORKSPACE/widoco.jar" \
-            -ontFile "$GITHUB_WORKSPACE/vivo.owl" \
-            -outFolder "$GITHUB_WORKSPACE/docs/dev" \
-            -includeImportedOntologies \
-            -lang en \
-            -rewriteAll \
-            >> docs/logs/widoco.log 2>&1
+          python -m pyLODE vivo.owl docs/dev
 
-      - name: Commit generated documentation
+      - name: Commit and push documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generate ontology documentation (dev)"
-          file_pattern: "docs/**"
-          author_name: "github-actions[bot]"
-          author_email: "41898282+github-actions[bot]@users.noreply.github.com"
-          push: true
+          file_pattern: docs/**
+          branch: main
+          author_name: GitHub Actions
+          author_email: actions@github.com
