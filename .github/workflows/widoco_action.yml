@@ -1,81 +1,73 @@
-name: Generate Ontology Documentation (WIDOCO)
+name: Generate Ontology Documentation
 
+# Trigger manually or on release
 on:
   workflow_dispatch:
   release:
-    types:
-      - published
+    types: [published]
 
+# Allow the workflow to push back to the repo
 permissions:
   contents: write
 
 jobs:
-  widoco:
+  widoco-docs:
     runs-on: ubuntu-latest
-
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Verify ontology file exists
+      # 2. Create required folders
+      - name: Prepare folders
         run: |
-          set -e
-          test -f vivo.owl
-
-      - name: Determine documentation version
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=dev" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Prepare docs folders (required by WIDOCO)
-        run: |
-          BASE="docs/${{ steps.version.outputs.version }}"
-          mkdir -p "$BASE/resources"
-          mkdir -p "$BASE/sections"
-          mkdir -p "$BASE/provenance"
+          mkdir -p docs/dev
           mkdir -p docs/logs
-          chmod -R 777 docs
 
-      - name: Pull WIDOCO image
-        run: |
-          docker pull ghcr.io/dgarijo/widoco:v1.4.25
+      # 3. Cache Docker image
+      - name: Cache WIDOCO Docker image
+        uses: actions/cache@v3
+        with:
+          path: /tmp/widoco-image
+          key: widoco-image-latest
+          restore-keys: widoco-image-latest
 
-      - name: Run WIDOCO (correct entrypoint)
+      # 4. Run WIDOCO
+      - name: Generate documentation with WIDOCO
         run: |
+          echo "Starting WIDOCO..."
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             ghcr.io/dgarijo/widoco:v1.4.25 \
-              -ontFile /workspace/vivo.owl \
-              -outFolder /workspace/docs/${{ steps.version.outputs.version }} \
-              -lang en \
-              -rewriteAll \
-              -noPlaceHolderText \
-            > docs/logs/widoco.log 2>&1
+            -ontFile /workspace/vivo.owl \
+            -outFolder /workspace/docs/dev \
+            -lang en \
+            -rewriteAll \
+            -noPlaceHolderText \
+            -includeImportedOntologies \
+            -getOntologyMetadata \
+            > /workspace/docs/logs/widoco.log 2>&1
 
-      - name: Show WIDOCO log
+      # 5. Verify WIDOCO output
+      - name: Verify documentation
         run: |
-          echo "===== widoco.log ====="
+          TARGET="docs/dev/index-en.html"
+          echo "===== WIDOCO LOG ====="
           cat docs/logs/widoco.log
-          echo "======================"
-
-      - name: List generated files
-        run: |
-          ls -R docs
-
-      - name: Verify documentation output
-        run: |
-          TARGET="docs/${{ steps.version.outputs.version }}/index-en.html"
+          echo "===== Check target ====="
           if [ ! -f "$TARGET" ]; then
-            echo "ERROR: documentation not generated"
+            echo "ERROR: documentation not found"
+            ls -R docs
             exit 1
+          else
+            echo "Documentation generated successfully: $TARGET"
           fi
 
-      - name: Commit documentation and logs
+      # 6. Commit and push generated docs
+      - name: Commit generated documentation
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Generate ontology documentation (${{ steps.version.outputs.version }})"
+          commit_message: Generate ontology documentation (dev)
           file_pattern: docs/**
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
