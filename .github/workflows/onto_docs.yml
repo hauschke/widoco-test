@@ -24,6 +24,9 @@ jobs:
           rm -rf docs
           mkdir -p docs
 
+      # -----------------------------
+      # WIDOCO: sectioned output
+      # -----------------------------
       - name: Run WIDOCO (sectioned output)
         run: |
           docker run \
@@ -32,6 +35,7 @@ jobs:
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
             -ontFile /input/vivo.owl \
+            -outFolder /opt/widoco/output \
             -lang en \
             -rewriteAll \
             -webVowl \
@@ -40,6 +44,9 @@ jobs:
           docker cp widoco_sections:/opt/widoco/output/. docs
           docker rm widoco_sections
 
+      # -----------------------------
+      # WIDOCO: single-page output
+      # -----------------------------
       - name: Run WIDOCO (single-page output)
         run: |
           docker run \
@@ -48,6 +55,7 @@ jobs:
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
             -ontFile /input/vivo.owl \
+            -outFolder /opt/widoco/output \
             -lang en \
             -rewriteAll \
             -webVowl \
