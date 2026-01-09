@@ -22,56 +22,81 @@ jobs:
       - name: Prepare docs directory
         run: |
           rm -rf docs
-          mkdir -p docs
+          mkdir -p docs/qa
 
-      - name: Run WIDOCO (VIVO‑tuned, single page)
+      # -----------------------------
+      # Ontology QA checks (non-fatal)
+      # -----------------------------
+      - name: Ontology QA checks
+        run: |
+          docker run --rm \
+            -v "$PWD:/data" \
+            stain/jena \
+            sh -c '
+              riot --validate /data/vivo.owl
+
+              sparql --data=/data/vivo.owl --query="
+              PREFIX owl: <http://www.w3.org/2002/07/owl#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+              SELECT ?entity WHERE {
+                ?entity a ?t .
+                FILTER(?t IN (owl:Class, owl:ObjectProperty, owl:DatatypeProperty))
+                FILTER NOT EXISTS { ?entity rdfs:label ?l }
+              }" > /data/docs/qa/missing-labels.txt
+
+              sparql --data=/data/vivo.owl --query="
+              PREFIX owl: <http://www.w3.org/2002/07/owl#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+              SELECT ?entity WHERE {
+                ?entity a ?t .
+                FILTER(?t IN (owl:Class, owl:ObjectProperty, owl:DatatypeProperty))
+                FILTER NOT EXISTS { ?entity rdfs:comment ?c }
+              }" > /data/docs/qa/missing-comments.txt
+            '
+
+      # -----------------------------
+      # WIDOCO: sectioned output
+      # -----------------------------
+      - name: Run WIDOCO (sectioned output)
         run: |
           docker run \
-            --name widoco_run \
+            --name widoco_sections \
             -e JAVA_TOOL_OPTIONS="-Xmx6G -Djava.io.tmpdir=/tmp" \
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
-            sh -c "
-              widoco \
-                -ontFile /input/vivo.owl \
-                -lang en \
-                -rewriteAll \
-                -webVowl \
-                -noSection \
-                -noPlaceHolderText \
-                -uniteSections
-            "
+            /bin/sh -c 'widoco -ontFile /input/vivo.owl -lang en -rewriteAll -webVowl -noPlaceHolderText'
 
-      - name: Copy documentation from container (CORRECT PATH)
-        run: |
-          docker cp widoco_run:/opt/widoco/output/. docs
+          docker cp widoco_sections:/opt/widoco/output/. docs
+          docker rm widoco_sections
 
-      - name: Cleanup container
+      # -----------------------------
+      # WIDOCO: single-page output
+      # -----------------------------
+      - name: Run WIDOCO (single-page output)
         run: |
-          docker rm widoco_run
+          docker run \
+            --name widoco_single \
+            -e JAVA_TOOL_OPTIONS="-Xmx6G -Djava.io.tmpdir=/tmp" \
+            -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
+            ghcr.io/dgarijo/widoco:latest \
+            /bin/sh -c 'widoco -ontFile /input/vivo.owl -lang en -rewriteAll -webVowl -noPlaceHolderText -uniteSections'
 
-      - name: Normalize index page for GitHub Pages
+          # overwrite index.html with single-page version
+          docker cp widoco_single:/opt/widoco/output/index-en.html docs/index.html
+          docker rm widoco_single
+
+      # -----------------------------
+      # GitHub Pages polish
+      # -----------------------------
+      - name: GitHub Pages setup
         run: |
-          if [ -f docs/index-en.html ]; then
-            mv docs/index-en.html docs/index.html
-          fi
           touch docs/.nojekyll
 
-      - name: Add GitHub Pages TOC
-        run: |
-          cat <<'EOF' > docs/README.md
-          # VIVO Ontology Documentation
-
-          ## Navigation
-          - **Ontology Specification** → [Index](index.html)
-          - **Classes & Properties** → [Cross Reference](sections/crossref-en.html)
-          - **Graph View (WebVOWL)** → [WebVOWL](webvowl/index.html)
-          - **Provenance** → [Provenance](sections/provenance-en.html)
-
-          ---
-          Generated automatically using **WIDOCO**.
-          EOF
-
+      # -----------------------------
+      # Commit results
+      # -----------------------------
       - name: Commit and push documentation
         run: |
           git config user.name "github-actions"
@@ -81,6 +106,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No documentation changes to commit."
           else
-            git commit -m "Update VIVO ontology documentation (WIDOCO)"
+            git commit -m "Update ontology documentation (WIDOCO)"
             git push
           fi
