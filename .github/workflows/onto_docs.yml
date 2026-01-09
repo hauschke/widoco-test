@@ -31,7 +31,11 @@ jobs:
             -e JAVA_TOOL_OPTIONS="-Xmx6G -Djava.io.tmpdir=/tmp" \
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
-            /bin/sh -c 'widoco -ontFile /input/vivo.owl -lang en -rewriteAll -webVowl -noPlaceHolderText'
+            -ontFile /input/vivo.owl \
+            -lang en \
+            -rewriteAll \
+            -webVowl \
+            -noPlaceHolderText
 
           docker cp widoco_sections:/opt/widoco/output/. docs
           docker rm widoco_sections
@@ -43,7 +47,12 @@ jobs:
             -e JAVA_TOOL_OPTIONS="-Xmx6G -Djava.io.tmpdir=/tmp" \
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
-            /bin/sh -c 'widoco -ontFile /input/vivo.owl -lang en -rewriteAll -webVowl -noPlaceHolderText -uniteSections'
+            -ontFile /input/vivo.owl \
+            -lang en \
+            -rewriteAll \
+            -webVowl \
+            -noPlaceHolderText \
+            -uniteSections
 
           docker cp widoco_single:/opt/widoco/output/index-en.html docs/index.html
           docker rm widoco_single
