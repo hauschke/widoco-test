@@ -2,8 +2,7 @@ name: Generate Ontology Documentation
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
     paths:
       - vivo.owl
   workflow_dispatch:
@@ -18,15 +17,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create docs directory
-        run: mkdir -p docs
+      - name: Prepare docs folder with correct permissions
+        run: |
+          mkdir -p docs/resources
+          mkdir -p docs/webvowl
+          chmod -R 777 docs
 
       - name: Generate HTML documentation with WIDOCO
         run: |
           docker run --rm \
+            -u $(id -u):$(id -g) \
             -v "$PWD:/opt/widoco/input" \
             -v "$PWD/docs:/opt/widoco/output" \
-            ghcr.io/dgarijo/widoco \
+            ghcr.io/dgarijo/widoco:latest \
             -ontFile /opt/widoco/input/vivo.owl \
             -outFolder /opt/widoco/output \
             -rewriteAll \
@@ -40,8 +43,8 @@ jobs:
 
           git add docs
           if git diff --cached --quiet; then
-            echo "No documentation changes to commit."
+            echo "No changes to commit."
           else
-            git commit -m "Update ontology documentation"
+            git commit -m "Update ontology documentation (WIDOCO)"
             git push
           fi
