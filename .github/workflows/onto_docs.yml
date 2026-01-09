@@ -24,7 +24,7 @@ jobs:
           rm -rf docs
           mkdir -p docs
 
-      - name: Run WIDOCO (VIVO‑tuned, single language, single page)
+      - name: Run WIDOCO (VIVO‑tuned, single page)
         run: |
           docker run \
             --name widoco_run \
@@ -32,10 +32,8 @@ jobs:
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
             sh -c "
-              mkdir -p /tmp/output && \
               widoco \
                 -ontFile /input/vivo.owl \
-                -outFolder /tmp/output \
                 -lang en \
                 -rewriteAll \
                 -webVowl \
@@ -44,9 +42,9 @@ jobs:
                 -uniteSections
             "
 
-      - name: Copy documentation from container
+      - name: Copy documentation from container (CORRECT PATH)
         run: |
-          docker cp widoco_run:/tmp/output/. docs
+          docker cp widoco_run:/opt/widoco/output/. docs
 
       - name: Cleanup container
         run: |
@@ -54,23 +52,20 @@ jobs:
 
       - name: Normalize index page for GitHub Pages
         run: |
-          # Ensure GitHub Pages root works
           if [ -f docs/index-en.html ]; then
             mv docs/index-en.html docs/index.html
           fi
-
-          # Disable Jekyll
           touch docs/.nojekyll
 
-      - name: Add GitHub Pages TOC and navigation
+      - name: Add GitHub Pages TOC
         run: |
           cat <<'EOF' > docs/README.md
           # VIVO Ontology Documentation
 
           ## Navigation
-          - **Ontology Overview** → [Index](index.html)
-          - **Classes and properties** → [Cross Reference](sections/crossref-en.html)
-          - **Graph Visualization (WebVOWL)** → [WebVOWL](webvowl/index.html)
+          - **Ontology Specification** → [Index](index.html)
+          - **Classes & Properties** → [Cross Reference](sections/crossref-en.html)
+          - **Graph View (WebVOWL)** → [WebVOWL](webvowl/index.html)
           - **Provenance** → [Provenance](sections/provenance-en.html)
 
           ---
