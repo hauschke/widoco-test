@@ -1,54 +1,47 @@
-name: Build ontology documentation with WIDOCO
+name: Generate Ontology Documentation
 
 on:
   push:
-    branches: [ master, develop ]
+    branches:
+      - main
+    paths:
+      - vivo.owl
   workflow_dispatch:
 
 jobs:
-  widoco:
+  generate-docs:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          fetch-depth: 0
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-jdk wget unzip gawk
+      - name: Create docs directory
+        run: mkdir -p docs
 
-      - name: Download WIDOCO
+      - name: Generate HTML documentation with WIDOCO
         run: |
-          wget https://github.com/dgarijo/Widoco/releases/download/v1.4.25/widoco-1.4.25-jar-with-dependencies_JDK-11.jar \
-            -O widoco.jar
-
-      - name: Prepare output directories
-        run: |
-          mkdir -p docs/dev
-
-      - name: Run WIDOCO
-        run: |
-          java -jar widoco.jar \
-            -ontFile vivo.owl \
-            -outFolder docs/dev \
+          docker run --rm \
+            -v "$PWD:/opt/widoco/input" \
+            -v "$PWD/docs:/opt/widoco/output" \
+            ghcr.io/dgarijo/widoco \
+            -ontFile /opt/widoco/input/vivo.owl \
+            -outFolder /opt/widoco/output \
             -rewriteAll \
             -webVowl \
-            -uniteSections \
-            -includeImportedOntologies
+            -noPlaceHolderText
 
-      - name: Normalize output filenames
-        run: |
-          if [ -f docs/dev/index-en.html ]; then
-            mv docs/dev/index-en.html docs/dev/index.html
-          fi
-
-      - name: Commit generated documentation
+      - name: Commit and push documentation
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add docs/dev
-          git commit -m "Update ontology documentation (WIDOCO)" || echo "No changes"
-          git push
+
+          git add docs
+          if git diff --cached --quiet; then
+            echo "No documentation changes to commit."
+          else
+            git commit -m "Update ontology documentation"
+            git push
+          fi
