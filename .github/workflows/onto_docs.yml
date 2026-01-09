@@ -1,24 +1,55 @@
---WIzard for DOCumenting Ontologies (WIDOCO).
- https://w3id.org/widoco/
-[main] INFO widoco.WidocoUtils - Copying resource folder from lode to tmp1767957712422
-[main] WARN widoco.Configuration - Error while reading configuration properties from [/usr/local/widoco/config/config.properties]: /usr/local/widoco/config/config.properties (No such file or directory)
-[main] WARN widoco.Configuration - Error while loading the default property file: /usr/local/widoco/config/config.properties (No such file or directory)
-[main] WARN widoco.Configuration - Error while reading configuration properties from []:  (No such file or directory)
-[main] WARN widoco.Configuration - Error while reading configuration properties from []:  (No such file or directory)
-[main] INFO widoco.gui.GuiController - Processed configuration, loading ontology now. isFromFile=true
-[main] INFO widoco.WidocoUtils - Load ontology /input/vivo.owl
-[main] INFO widoco.CatalogIRIMapper - Creating JenaCatalogIRIMapper
-[main] WARN org.semanticweb.owlapi.util.SAXParsers - http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit not supported by parser type org.apache.xerces.jaxp.SAXParserImpl, error message: Property 'http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit' is not recognized.
-[main] WARN org.semanticweb.owlapi.util.SAXParsers - entityExpansionLimit not supported by parser type org.apache.xerces.jaxp.SAXParserImpl, error message: Property 'entityExpansionLimit' is not recognized.
-[main] INFO widoco.gui.GuiController - Generating documentation for /input/vivo.owl in lang en
-[main] INFO widoco.gui.GuiController - Load properties from the ontology in lang en
-[main] INFO widoco.CreateResources - Generate documentation in /tmp/output
-[main] INFO widoco.CreateResources - - ontology IRI: http://vivoweb.org/ontology/core
-[main] INFO widoco.LODEParser - Parsing Complete!
-[main] INFO widoco.WidocoUtils - Copying resource folder from webvowl_1.1.7_patched to /tmp/output/webvowl
-[main] INFO widoco.CreateResources - No previous version provided. No changelog produced!
-ERROR StatusLogger Log4j2 could not find a logging implementation. Please add log4j-core to the classpath. Using SimpleLogger to log to the console...
-[main] INFO widoco.Configuration - Doc successfully generated for lang en
-Documentation generated successfully
-must specify at least one container source
-Error: Process completed with exit code 1.
+name: Generate Ontology Documentation (WIDOCO)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - vivo.owl
+  workflow_dispatch:
+
+jobs:
+  widoco:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare docs directory
+        run: |
+          rm -rf docs
+          mkdir -p docs
+
+      - name: Run WIDOCO in container (GitLab-equivalent)
+        run: |
+          docker run \
+            --name widoco_run \
+            -e JAVA_TOOL_OPTIONS="-Xmx4G -Djava.io.tmpdir=/tmp" \
+            -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
+            ghcr.io/dgarijo/widoco:latest \
+            -ontFile /input/vivo.owl \
+            -outFolder /tmp/output \
+            -rewriteAll \
+            -webVowl \
+            -noPlaceHolderText
+
+      - name: Copy documentation from container
+        run: |
+          docker cp widoco_run:/tmp/output/. docs
+
+      - name: Cleanup container
+        run: |
+          docker rm widoco_run
+
+      - name: Commit and push documentation
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add docs
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update ontology documentation (WIDOCO)"
+            git push
+          fi
