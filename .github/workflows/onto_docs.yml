@@ -1,45 +1,54 @@
-name: Generate Ontology Documentation
+name: Build ontology documentation with WIDOCO
 
 on:
   push:
-    branches:
-      - main
+    branches: [ master, develop ]
   workflow_dispatch:
 
 jobs:
-  generate-docs:
+  widoco:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # 2. Set up Python 3.11
-      - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v4
         with:
-          python-version: 3.11
+          persist-credentials: true
 
-      # 3. Install PyLODE
-      - name: Install PyLODE
+      - name: Install system dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install pyLODE
+          sudo apt-get update
+          sudo apt-get install -y default-jdk wget unzip gawk
 
-      # 4. Prepare output folder
-      - name: Prepare folders
-        run: mkdir -p docs/dev
+      - name: Download WIDOCO
+        run: |
+          wget https://github.com/dgarijo/Widoco/releases/download/v1.4.25/widoco-1.4.25-jar-with-dependencies_JDK-11.jar \
+            -O widoco.jar
 
-      # 5. Generate HTML documentation
-      - name: Generate HTML documentation
-        run: python -m pylode vivo.owl -o docs/dev/index.html
+      - name: Prepare output directories
+        run: |
+          mkdir -p docs/dev
 
-      # 6. Commit and push generated documentation
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Generate ontology documentation (PyLODE)"
-          file_pattern: docs/**
-          branch: main
-          add_options: "--all"
+      - name: Run WIDOCO
+        run: |
+          java -jar widoco.jar \
+            -ontFile vivo.owl \
+            -outFolder docs/dev \
+            -rewriteAll \
+            -webVowl \
+            -uniteSections \
+            -includeImportedOntologies
+
+      - name: Normalize output filenames
+        run: |
+          if [ -f docs/dev/index-en.html ]; then
+            mv docs/dev/index-en.html docs/dev/index.html
+          fi
+
+      - name: Commit generated documentation
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/dev
+          git commit -m "Update ontology documentation (WIDOCO)" || echo "No changes"
+          git push
