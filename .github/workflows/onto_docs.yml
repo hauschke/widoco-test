@@ -1,10 +1,14 @@
 name: Generate Ontology Documentation (WIDOCO)
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
     paths:
       - vivo.owl
+      - .github/workflows/ontology-docs.yml
   workflow_dispatch:
 
 jobs:
@@ -48,7 +52,7 @@ jobs:
 
           git add docs
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No documentation changes to commit."
           else
             git commit -m "Update ontology documentation (WIDOCO)"
             git push
