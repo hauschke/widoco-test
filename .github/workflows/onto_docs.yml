@@ -1,4 +1,4 @@
-name: Generate Ontology Documentation
+name: Generate Ontology Documentation (WIDOCO)
 
 on:
   push:
@@ -8,33 +8,34 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-docs:
+  widoco:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Prepare docs folder with correct permissions
+      - name: Prepare docs directory
         run: |
-          mkdir -p docs/resources
-          mkdir -p docs/webvowl
-          chmod -R 777 docs
+          rm -rf docs
+          mkdir -p docs
 
-      - name: Generate HTML documentation with WIDOCO
+      - name: Run WIDOCO (GitLab-equivalent execution)
         run: |
           docker run --rm \
-            -u $(id -u):$(id -g) \
-            -v "$PWD:/opt/widoco/input" \
-            -v "$PWD/docs:/opt/widoco/output" \
+            -e JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=/tmp" \
+            -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
-            -ontFile /opt/widoco/input/vivo.owl \
-            -outFolder /opt/widoco/output \
+            -ontFile /input/vivo.owl \
+            -outFolder /tmp/output \
             -rewriteAll \
             -webVowl \
             -noPlaceHolderText
+
+          # copy results out of the container
+          docker cp \
+            $(docker ps -alq):/tmp/output/. docs
+        shell: bash
 
       - name: Commit and push documentation
         run: |
