@@ -31,6 +31,7 @@ jobs:
             -e JAVA_TOOL_OPTIONS="-Xmx4G -Djava.io.tmpdir=/tmp" \
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
+            -lang en-us \
             -ontFile /input/vivo.owl \
             -outFolder /tmp/output \
             -rewriteAll \
