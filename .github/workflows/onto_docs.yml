@@ -1,4 +1,4 @@
-name: Generate Ontology Documentation (WIDOCO)
+name: Generate VIVO Ontology Documentation (WIDOCO)
 
 permissions:
   contents: write
@@ -24,20 +24,25 @@ jobs:
           rm -rf docs
           mkdir -p docs
 
-      - name: Run WIDOCO in container (GitLab-equivalent)
+      - name: Run WIDOCO (VIVO‑tuned, single language, single page)
         run: |
           docker run \
             --name widoco_run \
-            -e JAVA_TOOL_OPTIONS="-Xmx4G -Djava.io.tmpdir=/tmp" \
+            -e JAVA_TOOL_OPTIONS="-Xmx6G -Djava.io.tmpdir=/tmp" \
             -v "$PWD/vivo.owl:/input/vivo.owl:ro" \
             ghcr.io/dgarijo/widoco:latest \
-            -lang en-us \
-            -ontFile /input/vivo.owl \
-            -outFolder /tmp/output \
-            -rewriteAll \
-            -webVowl \
-            -noPlaceHolderText \
-            -noSection
+            sh -c "
+              mkdir -p /tmp/output && \
+              widoco \
+                -ontFile /input/vivo.owl \
+                -outFolder /tmp/output \
+                -lang en \
+                -rewriteAll \
+                -webVowl \
+                -noSection \
+                -noPlaceHolderText \
+                -uniteSections
+            "
 
       - name: Copy documentation from container
         run: |
@@ -46,6 +51,31 @@ jobs:
       - name: Cleanup container
         run: |
           docker rm widoco_run
+
+      - name: Normalize index page for GitHub Pages
+        run: |
+          # Ensure GitHub Pages root works
+          if [ -f docs/index-en.html ]; then
+            mv docs/index-en.html docs/index.html
+          fi
+
+          # Disable Jekyll
+          touch docs/.nojekyll
+
+      - name: Add GitHub Pages TOC and navigation
+        run: |
+          cat <<'EOF' > docs/README.md
+          # VIVO Ontology Documentation
+
+          ## Navigation
+          - **Ontology Overview** → [Index](index.html)
+          - **Classes and properties** → [Cross Reference](sections/crossref-en.html)
+          - **Graph Visualization (WebVOWL)** → [WebVOWL](webvowl/index.html)
+          - **Provenance** → [Provenance](sections/provenance-en.html)
+
+          ---
+          Generated automatically using **WIDOCO**.
+          EOF
 
       - name: Commit and push documentation
         run: |
@@ -56,6 +86,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No documentation changes to commit."
           else
-            git commit -m "Update ontology documentation (WIDOCO)"
+            git commit -m "Update VIVO ontology documentation (WIDOCO)"
             git push
           fi
