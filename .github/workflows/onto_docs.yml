@@ -36,7 +36,8 @@ jobs:
             -outFolder /tmp/output \
             -rewriteAll \
             -webVowl \
-            -noPlaceHolderText
+            -noPlaceHolderText \
+            -noSection
 
       - name: Copy documentation from container
         run: |
